@@ -5,6 +5,8 @@
 [![ORM](https://img.shields.io/badge/ORM-SQLAlchemy-red.svg)](https://www.sqlalchemy.org/)
 [![Database](https://img.shields.io/badge/Database-SQLite-lightgrey.svg)](https://www.sqlite.org/)
 [![Tests](https://img.shields.io/badge/Tests-Pytest%20Passed-success.svg)](https://pytest.org/)
+[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-emerald.svg)](https://mtlab1122.github.io/Campus_Environment_DataVisualization_System/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMTLab1122%2FCampus_Environment_DataVisualization_System)
 
 ---
 
