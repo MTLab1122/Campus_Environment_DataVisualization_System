@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Environment Data Visualization System | Live Portal</title>
+    <meta name="description" content="Centralized multi-zone environmental telemetry, atmospheric analytics, and air quality index monitoring for university campuses.">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons & Tailwind CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eefcf6',
+                            100: '#d5f7e8',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        },
+                        dark: {
+                            800: '#0f172a',
+                            850: '#0b1120',
+                            900: '#070b14',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js for live browser demo simulation -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(16, 185, 129, 0.15);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col font-sans">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i class="bi bi-shield-check text-xl text-white"></i>
+                </div>
+                <div>
+                    <span class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        Campus Telemetry <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">v2.4 Live</span>
+                    </span>
+                    <p class="text-xs text-slate-400">Environmental Data & Spatial Health Platform</p>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
+                <a href="#overview" class="hover:text-emerald-400 transition">Overview</a>
+                <a href="#live-demo" class="hover:text-emerald-400 transition">Live Telemetry</a>
+                <a href="#spatial-zones" class="hover:text-emerald-400 transition">Campus Zones</a>
+                <a href="#gallery" class="hover:text-emerald-400 transition">Screenshots</a>
+                <a href="#thesis" class="hover:text-emerald-400 transition">Thesis Docs</a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <a href="https://github.com/MTLab1122/Campus_Environment_DataVisualization_System" target="_blank" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700" title="GitHub Repository">
+                    <i class="bi bi-github text-lg"></i>
+                </a>
+                <a id="vercel-launch-btn" href="#" target="_blank" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 transition flex items-center space-x-2">
+                    <i class="bi bi-lightning-charge-fill text-amber-300"></i>
+                    <span>Open Vercel App</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Hero Section -->
+    <main class="flex-grow">
+        <section id="overview" class="relative pt-12 pb-20 overflow-hidden">
+            <!-- Background Glows -->
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/3 right-10 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300 mb-6">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Production Ready &bull; Python Flask + Plotly Dash &bull; 8 Spatial Zones</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
+                    Campus Environmental <br>
+                    <span class="gradient-text">Data Visualization System</span>
+                </h1>
+                <p class="max-w-3xl mx-auto text-lg text-slate-400 leading-relaxed mb-10">
+                    A comprehensive full-stack atmospheric, acoustic, and indoor air quality surveillance platform engineered for university campuses. Collects, models, and renders real-time telemetry with EPA AQI grading and multi-tier anomaly detection.
+                </p>
+
+                <!-- Action CTA Buttons -->
+                <div class="flex flex-wrap justify-center gap-4 mb-16">
+                    <a id="hero-vercel-btn" href="#" target="_blank" class="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-base shadow-xl shadow-emerald-500/25 transition flex items-center space-x-2">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span>Launch Live Dashboard (Vercel)</span>
+                    </a>
+                    <a href="https://github.com/MTLab1122/Campus_Environment_DataVisualization_System" target="_blank" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-base border border-slate-700 transition flex items-center space-x-2">
+                        <i class="bi bi-github"></i>
+                        <span>Explore Source on GitHub</span>
+                    </a>
+                    <a href="graduation_thesis_wuhu_university_enhanced.pdf" target="_blank" class="px-6 py-3.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 font-semibold text-base transition flex items-center space-x-2">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                        <span>Download Thesis (PDF)</span>
+                    </a>
+                </div>
+
+                <!-- KPI Metric Highlights -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                    <div class="glass-card p-5 rounded-2xl text-left">
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Campus Health (CEHI)</span>
+                            <i class="bi bi-heart-pulse-fill text-emerald-400"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-white flex items-baseline gap-2">
+                            88.4 <span class="text-sm font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Grade A</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Optimal acoustic & thermal safety</p>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl text-left">
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Spatial Fleet</span>
+                            <i class="bi bi-geo-alt-fill text-cyan-400"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-white">8 Zones</div>
+                        <p class="text-xs text-slate-500 mt-2">Gate, Library, Labs, Hostels, etc.</p>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl text-left">
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Telemetry Points</span>
+                            <i class="bi bi-database-fill text-indigo-400"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-white">2,772+</div>
+                        <p class="text-xs text-slate-500 mt-2">Historical hourly data populated</p>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl text-left">
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Test Coverage</span>
+                            <i class="bi bi-check-circle-fill text-emerald-400"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-white">27 / 27</div>
+                        <p class="text-xs text-slate-500 mt-2">100% Pytest suite passing</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Telemetry Simulation Preview -->
+        <section id="live-demo" class="py-16 bg-slate-900/60 border-y border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-bold text-white mb-3">Live Multi-Zone Sensor Feeds</h2>
+                    <p class="text-slate-400 text-sm">Simulated real-time streaming showing temperature, humidity, PM2.5 particulate matter, and acoustic decibel readings across campus stations.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Live Chart -->
+                    <div class="glass-panel p-6 rounded-2xl lg:col-span-2 border border-slate-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="bi bi-activity text-emerald-400"></i>
+                                    Telemetry Stream Simulator
+                                </h3>
+                                <p class="text-xs text-slate-400">Interactive live visualizer updating every 3 seconds</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">Library Station</span>
+                                <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Active</span>
+                            </div>
+                        </div>
+                        <div class="h-72 w-full">
+                            <canvas id="liveTelemetryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Instant Gauges & Parameters -->
+                    <div class="flex flex-col gap-4">
+                        <div class="glass-card p-5 rounded-2xl flex-1 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-400 uppercase">Air Quality Index (AQI)</span>
+                                <span id="aqi-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Good (0-50)</span>
+                            </div>
+                            <div class="my-3">
+                                <div class="text-4xl font-extrabold text-white" id="val-aqi">34</div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full mt-2 overflow-hidden">
+                                    <div id="bar-aqi" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 34%"></div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-slate-400 flex justify-between">
+                                <span>PM2.5: <strong id="val-pm25" class="text-white">8.2 µg/m³</strong></span>
+                                <span>PM10: <strong id="val-pm10" class="text-white">18.5 µg/m³</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-2xl flex-1 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-400 uppercase">Acoustic Noise Level</span>
+                                <span id="noise-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Quiet (Study Zone)</span>
+                            </div>
+                            <div class="my-3">
+                                <div class="text-4xl font-extrabold text-white flex items-baseline gap-2">
+                                    <span id="val-noise">42.8</span> <span class="text-base font-medium text-slate-400">dB</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full mt-2 overflow-hidden">
+                                    <div id="bar-noise" class="bg-cyan-500 h-full rounded-full transition-all duration-500" style="width: 43%"></div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-slate-400 flex justify-between">
+                                <span>Threshold: <strong class="text-slate-300">55.0 dB</strong></span>
+                                <span>Compliance: <strong class="text-emerald-400">Pass</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spatial Campus Zones Grid -->
+        <section id="spatial-zones" class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-bold text-white mb-3">Monitored Campus Micro-Climates</h2>
+                    <p class="text-slate-400 text-sm">Eight strategically located sensor hubs reporting continuous multi-parameter telemetry across indoor study areas, outdoor transit, and laboratory facilities.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Zone 1 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+                                01
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">ZONE_LIB</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Central Library</h4>
+                        <p class="text-xs text-slate-400 mb-3">Quiet study zone strictly regulated for noise suppression and ventilation.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>Noise: <strong>41 dB</strong></span>
+                            <span>CO2: <strong>580 ppm</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 2 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
+                                02
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">ZONE_GATE</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Main Gate</h4>
+                        <p class="text-xs text-slate-400 mb-3">Transit entry point with peak morning particulate and exhaust tracking.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>AQI: <strong>68</strong></span>
+                            <span>PM2.5: <strong>21 µg/m³</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 3 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">
+                                03
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono">ZONE_CLASS</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Classroom Complex</h4>
+                        <p class="text-xs text-slate-400 mb-3">Multi-storey lecture facility monitoring student density & fresh air circulation.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>Temp: <strong>22.8°C</strong></span>
+                            <span>CO2: <strong>640 ppm</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 4 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
+                                04
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">ZONE_CAFE</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Dining Center</h4>
+                        <p class="text-xs text-slate-400 mb-3">High daytime traffic dining hall tracking humidity, heat, and ventilation.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>Humidity: <strong>55%</strong></span>
+                            <span>Noise: <strong>64 dB</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 5 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-sm">
+                                05
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 font-mono">ZONE_HOSTEL</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Residential Hostel</h4>
+                        <p class="text-xs text-slate-400 mb-3">Student dormitories with focus on nighttime thermal comfort & silence.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>Night Noise: <strong>38 dB</strong></span>
+                            <span>Comfort: <strong>High</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 6 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-sm">
+                                06
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono">ZONE_PLAY</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Athletic Arena</h4>
+                        <p class="text-xs text-slate-400 mb-3">Open-air sports arena measuring ambient UV, solar heat index, and dust.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>Temp: <strong>26.4°C</strong></span>
+                            <span>AQI: <strong>42</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 7 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+                                07
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">ZONE_PARK</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Commuter Parking</h4>
+                        <p class="text-xs text-slate-400 mb-3">Transit exhaust monitoring identifying localized combustion spikes.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>CO: <strong>Normal</strong></span>
+                            <span>PM10: <strong>32 µg/m³</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Zone 8 -->
+                    <div class="glass-card p-5 rounded-2xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-9 h-9 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-sm">
+                                08
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">ZONE_LAB</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Laboratory Block</h4>
+                        <p class="text-xs text-slate-400 mb-3">Precision environmental control for scientific experiments and chemical safety.</p>
+                        <div class="pt-3 border-t border-slate-800/80 flex justify-between text-xs text-slate-300">
+                            <span>Stability: <strong>99.8%</strong></span>
+                            <span>Temp: <strong>21.2°C</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery of System Features & Dashboards -->
+        <section id="gallery" class="py-16 bg-slate-900/60 border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-bold text-white mb-3">Platform Visual Interface</h2>
+                    <p class="text-slate-400 text-sm">High-resolution views of the Plotly Dash reactive dashboard, administrative fleet management consoles, and analytical reports.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 group">
+                        <img src="screenshots/fig_01_dashboard_overview.png" alt="Dashboard Overview" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        <div class="p-4">
+                            <h4 class="font-bold text-white text-sm">Live Plotly Dash Core</h4>
+                            <p class="text-xs text-slate-400 mt-1">Real-time KPI metrics, dynamic time-series, and interactive gauges.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 group">
+                        <img src="screenshots/fig_02_trend_analysis.png" alt="Trend Analysis" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        <div class="p-4">
+                            <h4 class="font-bold text-white text-sm">Historical Multi-Trace Trends</h4>
+                            <p class="text-xs text-slate-400 mt-1">Rolling averages, peak detection, and threshold overlay bands.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 group">
+                        <img src="screenshots/fig_03_spatial_radar_comparison.png" alt="Spatial Radar Matrix" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        <div class="p-4">
+                            <h4 class="font-bold text-white text-sm">5-Axis Spatial Spider Radar</h4>
+                            <p class="text-xs text-slate-400 mt-1">Normalized multi-attribute environmental footprint across zones.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 group">
+                        <img src="screenshots/fig_04_diurnal_heatmap.png" alt="Diurnal Heatmap" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        <div class="p-4">
+                            <h4 class="font-bold text-white text-sm">Diurnal Heatmap Matrix</h4>
+                            <p class="text-xs text-slate-400 mt-1">Hour-of-day vs day-of-week intensity variations.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 group">
+                        <img src="screenshots/fig_06_zone_management.png" alt="Zone Management" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        <div class="p-4">
+                            <h4 class="font-bold text-white text-sm">Admin Zone Provisioning</h4>
+                            <p class="text-xs text-slate-400 mt-1">CRUD operations for campus spatial locations and metadata.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 group">
+                        <img src="screenshots/fig_08_alert_thresholds.png" alt="Alert Thresholds" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        <div class="p-4">
+                            <h4 class="font-bold text-white text-sm">Threshold Boundary Configuration</h4>
+                            <p class="text-xs text-slate-400 mt-1">Multi-tiered warning, poor, and dangerous alert limits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Academic Thesis & Documentation -->
+        <section id="thesis" class="py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="glass-panel p-8 sm:p-10 rounded-3xl border border-slate-800 shadow-2xl">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-5 text-2xl">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Academic Thesis & System Engineering Documentation</h2>
+                    <p class="text-slate-400 text-sm max-w-2xl mx-auto mb-8">
+                        The full graduation thesis document includes comprehensive mathematical models (diurnal solar radiation equations, EPA AQI piecewise algorithms, Pearson correlations), full architecture diagrams, and empirical testing proofs.
+                    </p>
+
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="graduation_thesis_wuhu_university_enhanced.pdf" target="_blank" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                            <span>Download Full Thesis (PDF)</span>
+                        </a>
+                        <a href="graduation_thesis_wuhu_university_enhanced.docx" target="_blank" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm transition flex items-center space-x-2">
+                            <i class="bi bi-file-earmark-word-fill text-blue-400"></i>
+                            <span>Download Thesis (DOCX)</span>
+                        </a>
+                        <a href="api-documentation.md" target="_blank" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm transition flex items-center space-x-2">
+                            <i class="bi bi-code-slash text-emerald-400"></i>
+                            <span>REST API Spec</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <p>&copy; 2026 Campus Environment Data Visualization System. All rights reserved.</p>
+            <div class="flex items-center space-x-6">
+                <a href="https://github.com/MTLab1122/Campus_Environment_DataVisualization_System" target="_blank" class="hover:text-slate-300 transition">GitHub Repo</a>
+                <a href="https://vercel.com" target="_blank" class="hover:text-slate-300 transition">Hosted on Vercel</a>
+                <a href="https://dash.plotly.com" target="_blank" class="hover:text-slate-300 transition">Plotly Dash</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        // Set Vercel deployment URL dynamically or default to current host / vercel
+        const vercelAppUrl = window.location.hostname.includes('vercel.app') 
+            ? window.location.origin 
+            : 'https://campus-environment-datavisualization-system.vercel.app';
+        
+        document.getElementById('vercel-launch-btn').href = vercelAppUrl;
+        document.getElementById('hero-vercel-btn').href = vercelAppUrl;
+
+        // Initialize Live Chart Simulation
+        const ctx = document.getElementById('liveTelemetryChart').getContext('2d');
+        const initialLabels = ['10:00', '10:05', '10:10', '10:15', '10:20', '10:25', '10:30', '10:35'];
+        
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: initialLabels,
+                datasets: [
+                    {
+                        label: 'Temperature (°C)',
+                        data: [21.8, 22.0, 22.4, 22.9, 23.1, 23.4, 23.2, 23.0],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.35,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Noise (dB)',
+                        data: [38.5, 41.2, 40.0, 44.2, 41.5, 43.0, 42.1, 41.8],
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.35,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#64748b' }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#10b981' },
+                        title: { display: true, text: 'Temp (°C)', color: '#10b981' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: '#06b6d4' },
+                        title: { display: true, text: 'Noise (dB)', color: '#06b6d4' }
+                    }
+                }
+            }
+        });
+
+        // Dynamic streaming simulation interval
+        setInterval(() => {
+            const now = new Date();
+            const timeStr = now.toTimeString().substring(0, 5);
+            
+            // Generate realistic subtle variances
+            const lastTemp = chart.data.datasets[0].data.slice(-1)[0] || 23.0;
+            const newTemp = +(lastTemp + (Math.random() * 0.4 - 0.2)).toFixed(1);
+            const newNoise = +(40 + Math.random() * 6).toFixed(1);
+
+            chart.data.labels.push(timeStr);
+            chart.data.datasets[0].data.push(newTemp);
+            chart.data.datasets[1].data.push(newNoise);
+
+            if (chart.data.labels.length > 10) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[1].data.shift();
+            }
+            chart.update('none');
+
+            // Update live gauge cards
+            document.getElementById('val-noise').textContent = newNoise;
+            document.getElementById('bar-noise').style.width = Math.min(100, Math.round(newNoise)) + '%';
+
+            const newAqi = Math.round(30 + Math.random() * 12);
+            document.getElementById('val-aqi').textContent = newAqi;
+            document.getElementById('bar-aqi').style.width = newAqi + '%';
+        }, 3000);
+    </script>
+</body>
+</html>

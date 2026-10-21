@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Alert Thresholds — Admin Console{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="/dashboard/" class="text-decoration-none text-secondary"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+      <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Alert Rules & Boundaries</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">
+        <i class="bi bi-bell-fill text-warning me-2"></i>Environmental Alert Rules & Thresholds
+      </h3>
+      <p class="text-muted small mb-0">Configure safe, warning, poor, and dangerous limits that trigger campus alerts.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/dashboard/" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm btn-sm">
+        <i class="bi bi-speedometer2 me-1"></i> View Dashboard
+      </a>
+      <span class="badge bg-light text-muted border px-3 py-2 rounded-pill small">
+        <i class="bi bi-shield-check text-success me-1"></i> US EPA & WHO Calibrated
+      </span>
+    </div>
+  </div>
+
+  {% if not current_user.is_admin %}
+  <div class="alert alert-info d-flex align-items-center rounded-3 border-0 shadow-sm mb-4 py-3" role="alert">
+    <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+    <div class="small">
+      <strong>Viewer Mode:</strong> You are viewing threshold configurations and alert histories in read-only mode. Administrator privileges are required to edit boundary values or resolve active alerts.
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Stats Overview -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
+        <span class="text-muted small fw-semibold text-uppercase">Total Active Alerts</span>
+        <h3 class="fw-bold text-dark mt-1 mb-0">{{ stats.total_active }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 rounded-3 p-3 bg-white border-start border-danger border-4">
+        <span class="text-danger small fw-semibold text-uppercase">Dangerous Level</span>
+        <h3 class="fw-bold text-danger mt-1 mb-0">{{ stats.dangerous }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 rounded-3 p-3 bg-white border-start border-warning border-4">
+        <span class="text-warning small fw-semibold text-uppercase">Poor Level</span>
+        <h3 class="fw-bold text-warning mt-1 mb-0">{{ stats.poor }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 rounded-3 p-3 bg-white border-start border-info border-4">
+        <span class="text-info small fw-semibold text-uppercase">Warning Level</span>
+        <h3 class="fw-bold text-info mt-1 mb-0">{{ stats.warning }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Threshold Configuration Table -->
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-white py-3 border-bottom">
+      <h5 class="fw-bold mb-0">Configurable Parameter Safety Boundaries</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Parameter</th>
+              <th>Unit</th>
+              <th>Warning Limits</th>
+              <th>Poor Limits</th>
+              <th>Dangerous Limits</th>
+              <th>Rule Description</th>
+              <th class="text-end pe-4">Edit Rule</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in thresholds %}
+            <tr>
+              <td class="ps-4">
+                <span class="fw-bold text-dark text-uppercase">{{ t.parameter }}</span>
+              </td>
+              <td><span class="badge bg-light text-dark border">{{ t.unit }}</span></td>
+              <td>
+                <span class="badge bg-info-subtle text-info">
+                  {{ t.warning_min if t.warning_min is not none else "—" }} to {{ t.warning_max if t.warning_max is not none else "—" }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-warning-subtle text-warning">
+                  {{ t.poor_min if t.poor_min is not none else "—" }} to {{ t.poor_max if t.poor_max is not none else "—" }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-danger-subtle text-danger">
+                  {{ t.dangerous_min if t.dangerous_min is not none else "—" }} to {{ t.dangerous_max if t.dangerous_max is not none else "—" }}
+                </span>
+              </td>
+              <td class="text-muted small text-truncate" style="max-width: 250px;">{{ t.description or "—" }}</td>
+              <td class="text-end pe-4">
+                <button class="btn btn-sm {% if current_user.is_admin %}btn-outline-primary{% else %}btn-outline-secondary{% endif %}" data-bs-toggle="modal" data-bs-target="#editThresholdModal{{ t.id }}">
+                  <i class="bi bi-pencil-square me-1"></i> {% if current_user.is_admin %}Adjust{% else %}Inspect{% endif %}
+                </button>
+              </td>
+            </tr>
+
+            <!-- Modal for Threshold Edit -->
+            <div class="modal fade" id="editThresholdModal{{ t.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                  <form method="POST" action="/admin/thresholds">
+                    <input type="hidden" name="action" value="update_threshold">
+                    <input type="hidden" name="threshold_id" value="{{ t.id }}">
+                    <div class="modal-header border-bottom">
+                      <h5 class="modal-title fw-bold">Configure {{ t.parameter.upper() }} Thresholds ({{ t.unit }})</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                      {% if not current_user.is_admin %}
+                      <div class="alert alert-secondary py-2 small mb-3">
+                        <i class="bi bi-lock me-1"></i> Sign in as an administrator to change these thresholds.
+                      </div>
+                      {% endif %}
+                      <div class="row g-2 mb-3">
+                        <div class="col-6">
+                          <label class="form-label small text-muted">Warning Min</label>
+                          <input type="number" step="0.1" class="form-control form-control-sm" name="warning_min" value="{{ t.warning_min if t.warning_min is not none else '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label small text-muted">Warning Max</label>
+                          <input type="number" step="0.1" class="form-control form-control-sm" name="warning_max" value="{{ t.warning_max if t.warning_max is not none else '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                        </div>
+                      </div>
+                      <div class="row g-2 mb-3">
+                        <div class="col-6">
+                          <label class="form-label small text-muted">Poor Min</label>
+                          <input type="number" step="0.1" class="form-control form-control-sm" name="poor_min" value="{{ t.poor_min if t.poor_min is not none else '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label small text-muted">Poor Max</label>
+                          <input type="number" step="0.1" class="form-control form-control-sm" name="poor_max" value="{{ t.poor_max if t.poor_max is not none else '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                        </div>
+                      </div>
+                      <div class="row g-2 mb-3">
+                        <div class="col-6">
+                          <label class="form-label small text-muted">Dangerous Min</label>
+                          <input type="number" step="0.1" class="form-control form-control-sm" name="dangerous_min" value="{{ t.dangerous_min if t.dangerous_min is not none else '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label small text-muted">Dangerous Max</label>
+                          <input type="number" step="0.1" class="form-control form-control-sm" name="dangerous_max" value="{{ t.dangerous_max if t.dangerous_max is not none else '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                        </div>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label small text-muted">Rule Guidance / Description</label>
+                        <input type="text" class="form-control form-control-sm" name="description" value="{{ t.description or '' }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                      </div>
+                    </div>
+                    <div class="modal-footer border-top bg-light">
+                      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                      {% if current_user.is_admin %}
+                      <button type="submit" class="btn btn-primary btn-sm px-3"><i class="bi bi-save me-1"></i> Update Thresholds</button>
+                      {% endif %}
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Alert History -->
+  <div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="fw-bold mb-0">Recent Alert History Log</h5>
+        <span class="text-muted small">Real-time audit log of campus threshold excursions</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        {% if current_user.is_admin and stats.total_active > 0 %}
+        <form method="POST" action="/admin/thresholds" class="d-inline" onsubmit="return confirm('Resolve all {{ stats.total_active }} active alert(s)?');">
+          <input type="hidden" name="action" value="resolve_all">
+          <button type="submit" class="btn btn-sm btn-outline-success fw-semibold">
+            <i class="bi bi-check2-all me-1"></i> Resolve All ({{ stats.total_active }})
+          </button>
+        </form>
+        {% endif %}
+        <span class="badge bg-light text-muted border">Latest 25 Records</span>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Time</th>
+              <th>Campus Zone</th>
+              <th>Parameter</th>
+              <th>Measured Value</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Alert Message</th>
+              <th class="text-end pe-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in recent_alerts %}
+            <tr>
+              <td class="ps-4 text-muted">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td class="fw-bold">{{ a.zone.name if a.zone else "Zone " ~ a.zone_id }}</td>
+              <td class="text-uppercase fw-semibold">{{ a.parameter }}</td>
+              <td><span class="fw-bold">{{ a.measured_value }}</span></td>
+              <td>
+                {% if a.severity == "Dangerous" %}
+                <span class="badge bg-danger">{{ a.severity }}</span>
+                {% elif a.severity == "Poor" %}
+                <span class="badge bg-warning text-dark">{{ a.severity }}</span>
+                {% else %}
+                <span class="badge bg-info">{{ a.severity }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if a.is_resolved %}
+                <span class="badge bg-success-subtle text-success py-1 px-2"><i class="bi bi-check-circle me-1"></i>Resolved</span>
+                {% else %}
+                <span class="badge bg-danger-subtle text-danger py-1 px-2"><i class="bi bi-exclamation-octagon me-1"></i>Active</span>
+                {% endif %}
+              </td>
+              <td class="text-muted">{{ a.message }}</td>
+              <td class="text-end pe-4">
+                {% if not a.is_resolved %}
+                  {% if current_user.is_admin %}
+                  <form method="POST" action="/admin/thresholds" class="d-inline">
+                    <input type="hidden" name="action" value="resolve_alert">
+                    <input type="hidden" name="alert_id" value="{{ a.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-success py-0 px-2 fw-semibold">
+                      <i class="bi bi-check-lg me-1"></i>Resolve
+                    </button>
+                  </form>
+                  {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary">Admin required</span>
+                  {% endif %}
+                {% else %}
+                <span class="text-muted small"><i class="bi bi-check2 text-success me-1"></i>Done</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">No alert events recorded yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Manual Data Entry — Admin Console{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="/dashboard/" class="text-decoration-none text-secondary"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+      <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Manual Telemetry Ingestion</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">
+        <i class="bi bi-pencil-square text-primary me-2"></i>Manual Environmental Data Entry
+      </h3>
+      <p class="text-muted small mb-0">Record physical or handheld sensor telemetry readings directly into the campus environmental repository.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/dashboard/" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm btn-sm">
+        <i class="bi bi-speedometer2 me-1"></i> View Dashboard
+      </a>
+      <span class="badge bg-light text-muted border px-3 py-2 rounded-pill small">
+        <i class="bi bi-shield-check text-success me-1"></i> Rule Verification Active
+      </span>
+    </div>
+  </div>
+
+  {% if not current_user.is_admin %}
+  <div class="alert alert-info d-flex align-items-center rounded-3 border-0 shadow-sm mb-4 py-3" role="alert">
+    <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+    <div class="small">
+      <strong>Viewer Mode:</strong> You are viewing historical ingestions in read-only mode. Administrator privileges are required to manually submit new telemetry readings.
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    <!-- Manual Entry Form -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 rounded-3 bg-white p-3">
+        <div class="card-header bg-white border-0 pb-0 d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="fw-bold mb-1"><i class="bi bi-input-cursor-text text-primary me-2"></i>New Telemetry Reading</h5>
+            <p class="text-muted small mb-2">Input parameters will be verified against alert rules upon submission.</p>
+          </div>
+        </div>
+
+        {% if current_user.is_admin %}
+        <!-- Quick Preset Buttons -->
+        <div class="px-3 pb-3 border-bottom mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted fw-bold"><i class="bi bi-lightning-charge text-warning me-1"></i> Quick Campus Presets:</span>
+            <span class="badge bg-light text-muted border small">1-Click Auto-Fill</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <button type="button" class="btn btn-sm btn-outline-success flex-fill" onclick="fillPreset(21.0, 45.0, 8.2, 14.5, 450, 38.0, 'Sunny')">
+              <i class="bi bi-book me-1"></i> Library Quiet
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="fillPreset(23.5, 52.0, 48.0, 95.0, 620, 74.0, 'Partly Cloudy')">
+              <i class="bi bi-car-front me-1"></i> Gate Traffic
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-warning text-dark flex-fill" onclick="fillPreset(25.0, 58.0, 16.0, 32.0, 1450, 64.0, 'Cloudy')">
+              <i class="bi bi-people me-1"></i> Packed Lecture (CO2)
+            </button>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-outline-info flex-fill" onclick="fillPreset(26.5, 65.0, 38.0, 72.0, 980, 78.5, 'Sunny')">
+              <i class="bi bi-cup-hot me-1"></i> Cafeteria Lunch
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger flex-fill" onclick="fillPreset(32.0, 75.0, 78.0, 165.0, 2100, 88.0, 'Hazy')">
+              <i class="bi bi-exclamation-triangle me-1"></i> Dangerous Alert Test
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
+
+        <div class="card-body pt-1">
+          <form method="POST" action="/admin/readings/manual" id="manualEntryForm">
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-secondary small">Reporting Sensor Station</label>
+              <select class="form-select" id="input_sensor_id" name="sensor_id" required {% if not current_user.is_admin %}disabled{% endif %}>
+                <option value="">-- Choose Sensor Station --</option>
+                {% for s in sensors %}
+                <option value="{{ s.id }}">{{ s.sensor_code }} — {{ s.name }} ({{ s.zone.name if s.zone else 'No Zone' }})</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">Temperature (°C)</label>
+                <input type="number" step="0.1" class="form-control" id="input_temperature" name="temperature" placeholder="e.g. 23.5" required {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">Relative Humidity (%)</label>
+                <input type="number" step="0.1" class="form-control" id="input_humidity" name="humidity" placeholder="e.g. 48.0" required {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">PM2.5 (µg/m³)</label>
+                <input type="number" step="0.1" class="form-control" id="input_pm25" name="pm25" placeholder="e.g. 15.2" required oninput="updateLiveAQI()" {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">PM10 (µg/m³)</label>
+                <input type="number" step="0.1" class="form-control" id="input_pm10" name="pm10" placeholder="e.g. 28.4" required oninput="updateLiveAQI()" {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+            </div>
+
+            <!-- Live AQI Preview Bar -->
+            <div class="p-2 mb-3 rounded-2 bg-light border d-flex justify-content-between align-items-center">
+              <span class="small text-muted"><i class="bi bi-activity text-primary me-1"></i> Calculated AQI Preview:</span>
+              <span id="liveAqiBadge" class="badge bg-secondary px-2 py-1">Enter PM2.5 / PM10</span>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">CO2 Concentration (ppm)</label>
+                <input type="number" step="1" class="form-control" id="input_co2" name="co2" placeholder="e.g. 580" required {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">Noise Level (dB)</label>
+                <input type="number" step="0.1" class="form-control" id="input_noise" name="noise" placeholder="e.g. 42.0" required {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-4">
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">Weather Condition</label>
+                <select class="form-select" id="input_weather" name="weather_condition" {% if not current_user.is_admin %}disabled{% endif %}>
+                  <option value="Sunny">Sunny</option>
+                  <option value="Partly Cloudy">Partly Cloudy</option>
+                  <option value="Clear">Clear</option>
+                  <option value="Overcast">Overcast</option>
+                  <option value="Light Rain">Light Rain</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold text-secondary small">Timestamp (Optional)</label>
+                <input type="datetime-local" class="form-control" name="timestamp" {% if not current_user.is_admin %}disabled{% endif %}>
+              </div>
+            </div>
+
+            {% if current_user.is_admin %}
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary flex-grow-1 py-2 fw-semibold rounded-3 shadow-sm">
+                <i class="bi bi-cloud-arrow-up me-1"></i> Record Telemetry & Evaluate
+              </button>
+              <button type="button" class="btn btn-outline-secondary py-2 rounded-3" onclick="document.getElementById('manualEntryForm').reset(); updateLiveAQI();">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+            </div>
+            {% else %}
+            <button type="button" class="btn btn-secondary w-100 py-2 fw-semibold rounded-3" disabled>
+              <i class="bi bi-lock me-1"></i> Admin Privileges Required to Submit
+            </button>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Readings Stream -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 rounded-3 bg-white">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="fw-bold mb-0">Recent Ingested Telemetry</h5>
+            <span class="badge bg-light text-muted border small" id="searchResultCount">{{ latest_readings|length }} records</span>
+          </div>
+          <div style="max-width: 240px; width: 100%;">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" class="form-control border-start-0" id="tableSearchInput" placeholder="Filter readings...">
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small filter-target-table">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-3">Time</th>
+                  <th>Zone</th>
+                  <th>Sensor</th>
+                  <th>Temp</th>
+                  <th>Humidity</th>
+                  <th>PM2.5</th>
+                  <th>CO2</th>
+                  <th>Noise</th>
+                  <th>AQI</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in latest_readings %}
+                <tr>
+                  <td class="ps-3 text-muted">{{ r.timestamp.strftime('%H:%M:%S') }}</td>
+                  <td class="fw-bold">{{ r.zone.name if r.zone else 'Zone ' ~ r.zone_id }}</td>
+                  <td><code>{{ r.sensor.sensor_code if r.sensor else r.sensor_id }}</code></td>
+                  <td>{{ r.temperature }}°C</td>
+                  <td>{{ r.humidity }}%</td>
+                  <td>{{ r.pm25 }}</td>
+                  <td>{{ r.co2|int }}</td>
+                  <td>{{ r.noise }}</td>
+                  <td>
+                    {% if r.aqi <= 50 %}
+                    <span class="badge bg-success">{{ r.aqi }} (Good)</span>
+                    {% elif r.aqi <= 100 %}
+                    <span class="badge bg-warning text-dark">{{ r.aqi }} (Moderate)</span>
+                    {% elif r.aqi <= 150 %}
+                    <span class="badge bg-orange text-white" style="background-color: #fd7e14;">{{ r.aqi }} (USG)</span>
+                    {% elif r.aqi <= 200 %}
+                    <span class="badge bg-danger">{{ r.aqi }} (Unhealthy)</span>
+                    {% else %}
+                    <span class="badge bg-dark">{{ r.aqi }} (Severe)</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="9" class="text-center py-4 text-muted">No telemetry records present.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function fillPreset(temp, hum, pm25, pm10, co2, noise, weather) {
+  const sensorSelect = document.getElementById('input_sensor_id');
+  if (sensorSelect && sensorSelect.selectedIndex <= 0 && sensorSelect.options.length > 1) {
+    sensorSelect.selectedIndex = 1;
+  }
+  document.getElementById('input_temperature').value = temp;
+  document.getElementById('input_humidity').value = hum;
+  document.getElementById('input_pm25').value = pm25;
+  document.getElementById('input_pm10').value = pm10;
+  document.getElementById('input_co2').value = co2;
+  document.getElementById('input_noise').value = noise;
+  document.getElementById('input_weather').value = weather;
+  updateLiveAQI();
+}
+
+function calcAqiSegment(c, cLow, cHigh, iLow, iHigh) {
+  return Math.round(((iHigh - iLow) / (cHigh - cLow)) * (c - cLow) + iLow);
+}
+
+function calcPm25Aqi(c) {
+  if (c <= 12.0) return calcAqiSegment(c, 0.0, 12.0, 0, 50);
+  if (c <= 35.4) return calcAqiSegment(c, 12.1, 35.4, 51, 100);
+  if (c <= 55.4) return calcAqiSegment(c, 35.5, 55.4, 101, 150);
+  if (c <= 150.4) return calcAqiSegment(c, 55.5, 150.4, 151, 200);
+  if (c <= 250.4) return calcAqiSegment(c, 150.5, 250.4, 201, 300);
+  if (c <= 500.4) return calcAqiSegment(c, 250.5, 500.4, 301, 500);
+  return 500;
+}
+
+function calcPm10Aqi(c) {
+  if (c <= 54) return calcAqiSegment(c, 0, 54, 0, 50);
+  if (c <= 154) return calcAqiSegment(c, 55, 154, 51, 100);
+  if (c <= 254) return calcAqiSegment(c, 155, 254, 101, 150);
+  if (c <= 354) return calcAqiSegment(c, 255, 354, 151, 200);
+  if (c <= 424) return calcAqiSegment(c, 355, 424, 201, 300);
+  if (c <= 604) return calcAqiSegment(c, 425, 604, 301, 500);
+  return 500;
+}
+
+function updateLiveAQI() {
+  const pm25Val = parseFloat(document.getElementById('input_pm25').value);
+  const pm10Val = parseFloat(document.getElementById('input_pm10').value);
+  const badge = document.getElementById('liveAqiBadge');
+
+  if (isNaN(pm25Val) && isNaN(pm10Val)) {
+    badge.className = 'badge bg-secondary px-2 py-1';
+    badge.textContent = 'Enter PM2.5 / PM10';
+    return;
+  }
+
+  const aqi25 = isNaN(pm25Val) ? 0 : calcPm25Aqi(pm25Val);
+  const aqi10 = isNaN(pm10Val) ? 0 : calcPm10Aqi(pm10Val);
+  const aqi = Math.max(aqi25, aqi10);
+
+  if (aqi <= 50) {
+    badge.className = 'badge bg-success px-2 py-1';
+    badge.textContent = `AQI: ${aqi} — Good`;
+  } else if (aqi <= 100) {
+    badge.className = 'badge bg-warning text-dark px-2 py-1';
+    badge.textContent = `AQI: ${aqi} — Moderate`;
+  } else if (aqi <= 150) {
+    badge.className = 'badge text-white px-2 py-1';
+    badge.style.backgroundColor = '#fd7e14';
+    badge.textContent = `AQI: ${aqi} — Unhealthy for Sensitive Groups`;
+  } else if (aqi <= 200) {
+    badge.className = 'badge bg-danger px-2 py-1';
+    badge.textContent = `AQI: ${aqi} — Unhealthy`;
+  } else {
+    badge.className = 'badge bg-dark px-2 py-1';
+    badge.textContent = `AQI: ${aqi} — Hazardous`;
+  }
+}
+</script>
+{% endblock %}

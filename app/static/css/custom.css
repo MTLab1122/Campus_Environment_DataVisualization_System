@@ -1,0 +1,278 @@
+/* ==========================================================================
+   Campus Environment Data Visualization System — Modern Design System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Color Palette */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-subtle: #eff6ff;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  /* Slate Neutrals */
+  --bg-app: #f8fafc;
+  --surface: #ffffff;
+  --border-light: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background-color: var(--bg-app);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glassmorphism Navbar */
+.navbar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  transition: all 0.2s ease;
+}
+
+.brand-icon-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.12);
+  transition: transform 0.2s ease;
+}
+
+.brand-icon-wrapper:hover {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.brand-title {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.active-nav-pill {
+  background-color: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+}
+
+.pulse-green-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  animation: breathingPulse 2s infinite ease-out;
+}
+
+/* Card Elevation & Glass Accents */
+.card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-sm) !important;
+  background-color: var(--surface) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-hover-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.metric-hover-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Pulsing Status Animation */
+@keyframes breathingPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    transform: scale(1);
+  }
+}
+
+.pulse-green {
+  animation: breathingPulse 2s infinite ease-out;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+/* Dash Dropdown Styling */
+.dash-dropdown .Select-control {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid #cbd5e1 !important;
+  height: 40px !important;
+  box-shadow: none !important;
+  font-size: 13px;
+  font-family: var(--font-sans);
+}
+
+.dash-dropdown .Select-control:hover {
+  border-color: #94a3b8 !important;
+}
+
+.dash-dropdown .is-focused:not(.is-open) > .Select-control {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* Dash Datepicker Styling */
+.dash-datepicker input {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  font-family: var(--font-sans);
+  color: #334155 !important;
+}
+
+.dash-datepicker input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* Interactive Buttons */
+.btn {
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Table Hover */
+.table-hover tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Dash Table Cells */
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th {
+  background-color: #f8fafc !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 11px !important;
+  letter-spacing: 0.05em;
+  color: #475569 !important;
+  padding: 12px 14px !important;
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td {
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  border-color: #f1f5f9 !important;
+}
+
+/* Glassmorphism & Modern Card Accents */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.badge-glow-success {
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.badge-glow-danger {
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+}
+
+.badge-glow-primary {
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.35);
+}
+
+/* API Documentation Interactive View */
+pre {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.card-hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg) !important;
+}
+
