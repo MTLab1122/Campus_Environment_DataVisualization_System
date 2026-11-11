@@ -5,8 +5,20 @@
 [![ORM](https://img.shields.io/badge/ORM-SQLAlchemy-red.svg)](https://www.sqlalchemy.org/)
 [![Database](https://img.shields.io/badge/Database-SQLite-lightgrey.svg)](https://www.sqlite.org/)
 [![Tests](https://img.shields.io/badge/Tests-Pytest%20Passed-success.svg)](https://pytest.org/)
-[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-emerald.svg)](https://mtlab1122.github.io/Campus_Environment_DataVisualization_System/)
+[![Live Portal](https://img.shields.io/badge/Live%20Portal-GitHub%20Pages-emerald.svg)](https://mtlab1122.github.io/Campus_Environment_DataVisualization_System/)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMTLab1122%2FCampus_Environment_DataVisualization_System)
+
+---
+
+## Live Resources
+
+* **Live project portal**: [mtlab1122.github.io/Campus_Environment_DataVisualization_System](https://mtlab1122.github.io/Campus_Environment_DataVisualization_System/)
+* **Local interactive application**: run `python run.py`, then open `http://127.0.0.1:5000/dashboard/`
+* **API documentation**: [docs/api-documentation.md](docs/api-documentation.md) and the in-app `/api/docs` portal
+* **Graduation thesis**: [docs/thesis.md](docs/thesis.md)
+* **University approval presentation**: [Campus_Environment_System_Approval_Presentation.pptx](Campus_Environment_System_Approval_Presentation.pptx)
+
+The live portal is a browser-based project overview and demonstration. The full Flask and Plotly Dash application runs locally or through a configured Python WSGI deployment.
 
 ---
 
@@ -56,12 +68,12 @@ Modern university and college campuses host thousands of students, researchers, 
 
 ---
 
-## 5. Technology Stack (Python-Only)
-The entire system is implemented strictly using Python-based technologies:
+## 5. Technology Stack (Python-Centered)
+The application backend, analytics, dashboard authoring, API, and persistence workflow are Python-centered. Dash serves the reactive browser client, while the repository also includes a lightweight static GitHub Pages portal for project presentation.
 
 | Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Language** | Python 3.10+ (tested on Python 3.15) | Core execution runtime |
+| **Language** | Python 3.10+ (verified with Python 3.14.7) | Core execution runtime |
 | **Web Framework** | Flask 3.1+ | WSGI application, routing, and REST API |
 | **Visualization & Dashboard**| Plotly Dash 2.17+ & Dash Bootstrap Components | Interactive reactive dashboard |
 | **ORM & Persistence** | SQLAlchemy 2.0+ & Flask-SQLAlchemy | Object-relational mapping and database abstraction |
