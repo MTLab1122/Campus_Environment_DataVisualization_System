@@ -56,6 +56,12 @@ def create_app(config_name: str = None) -> Flask:
     if not app.config.get("TESTING", False):
         with app.app_context():
             db.create_all()
+            if app.config.get("ENABLE_DEMO_ACCOUNTS", False):
+                from app.services.initialization import seed_demo_catalog, seed_demo_users
+                from app.services.alert_service import seed_default_thresholds
+                seed_demo_users()
+                seed_demo_catalog()
+                seed_default_thresholds()
         from app.dashboard import init_dashboard
         init_dashboard(app)
 

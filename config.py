@@ -16,6 +16,7 @@ class Config:
     
     # Dashboard configuration
     DASHBOARD_URL_BASE = "/dashboard/"
+    ENABLE_DEMO_ACCOUNTS = False
     
     # Campus Environmental Constants
     CAMPUS_ZONES_DEFAULT = [
@@ -34,6 +35,7 @@ class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
     TESTING = False
+    ENABLE_DEMO_ACCOUNTS = os.environ.get("ENABLE_DEMO_ACCOUNTS", "1") == "1"
     db_path = BASE_DIR / "campus_environment.db"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", f"sqlite:///{db_path}")
 

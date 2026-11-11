@@ -37,6 +37,10 @@ htmlcov/
 # Environment Secrets
 .env
 
+# Local SQLite databases
+*.db
+instance/*.db
+
 # Vercel Cache
 .vercel/
 

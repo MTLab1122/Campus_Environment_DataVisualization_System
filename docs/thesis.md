@@ -150,13 +150,13 @@ The remainder of this graduation thesis is organized systematically as follows: 
 Modern environmental data science requires a coherent software architecture capable of ingesting high-frequency telemetry, persisting structured relational models, executing vectorized mathematical transformations, and presenting reactive visual analytics. This project utilizes an interconnected suite of open-source Python technologies:
 * **Python 3.10+ Ecosystem**: Provides high execution speed, modern pattern matching, robust type hinting, and native asynchronous primitives.
 * **Flask (v3.1+)**: A lightweight WSGI microframework providing modular Blueprint routing, request lifecycle hooks, application factories, Jinja2 template rendering, and session management.
-* **Plotly Dash (v2.17+ / v4.4+)**: An analytical application framework built on top of Flask, React.js, and Plotly.js, enabling reactive single-page applications purely in Python.
+* **Plotly Dash (v2.17+)**: An analytical application framework built on top of Flask, React.js, and Plotly.js, enabling reactive analytical interfaces authored from Python.
 * **SQLAlchemy (v2.0+)**: The industry-standard Object-Relational Mapper (ORM), executing declarative schema mappings, transaction management, connection pooling, and cascading foreign key integrity.
 * **SQLite 3 Database**: A self-contained, serverless, zero-configuration transactional SQL database engine natively supported by Python.
-* **Pandas (v3.0+) & NumPy (v2.5+)**: The foundation of Python's scientific computing stack, providing DataFrame abstractions for vectorized temporal aggregations and matrix operations.
+* **Pandas (v2.2+) & NumPy (v1.26+)**: The foundation of Python's scientific computing stack, providing DataFrame abstractions for vectorized temporal aggregations and matrix operations.
 
 ### 2.2 Development Tools and Frameworks
-* **Pytest (v9.1+)**: A modular testing framework facilitating fixture injection, parametric testing, and automated end-to-end API/database validation across 27 automated test suites.
+* **Pytest (v8.0+)**: A modular testing framework facilitating fixture injection, parametric testing, and automated end-to-end API/database validation across 27 automated test cases.
 * **Bootstrap 5 & Custom CSS**: Delivers responsive CSS grid structures, card elevation hierarchies, and modern cybernetic dark-theme tokens (`#0f172a`, `#1e293b`, `#38bdf8`).
 * **Werkzeug & Flask-Login**: Provides secure HTTP session handling, cryptographic password hashing using salted PBKDF2 with SHA-256, and cookie security flags.
 
@@ -332,10 +332,10 @@ This chapter detailed the system's structural design, including 4-tier architect
 ## Chapter 5: System Implementation
 
 ### 5.1 Development Environment
-* **OS**: Microsoft Windows 11 Enterprise (64-bit)
-* **Runtime**: Python 3.15.0 in isolated virtual environment (`venv`)
-* **Libraries**: Flask 3.1.2, Dash 4.4.1, SQLAlchemy 2.0.44, Pandas 3.0.1, NumPy 2.5.0, Werkzeug 3.1.5, Faker 40.43.0, Pytest 9.1.1
-* **Database**: SQLite 3 instance situated at `instance/campus_environment.db`
+* **OS**: Microsoft Windows 64-bit development environment
+* **Runtime**: Python 3.14.7 system interpreter used for the current verification run; the project declares Python 3.10+ support.
+* **Libraries**: Flask 3.0+, Flask-SQLAlchemy 3.1+, Flask-Login 0.6+, Dash 2.17+, SQLAlchemy 2.0+, Pandas 2.2+, NumPy 1.26+, Werkzeug 3.0+, Faker 25+, and Pytest 8.0+ as declared in `requirements.txt`.
+* **Database**: SQLite 3 database configured by `config.py` at the project root as `campus_environment.db` by default; tests use an isolated in-memory SQLite database.
 
 ### 5.2 Project Structure
 Annotated directory structure:
@@ -344,7 +344,6 @@ Sajjad_Project/
 |-- app/
 |   |-- __init__.py           (Application factory, DB initialization, Blueprint registration)
 |   |-- extensions.py         (SQLAlchemy 'db' and LoginManager instances)
-|   |-- config.py             (Environment configuration: development, testing, production)
 |   |-- models/               (SQLAlchemy 2.0 declarative models directory)
 |   |   |-- user.py           (User authentication credentials and RBAC roles)
 |   |   |-- campus_zone.py    (Geographic zones and sensor relationships)
@@ -361,11 +360,12 @@ Sajjad_Project/
 |   |-- utils/                (AQI calculator, security decorators, datetime helpers)
 |   |-- templates/            (Jinja2 administrative views, login, API documentation portal)
 |   |-- static/               (Custom cybernetic CSS styles, JS assets, icons)
-|-- tests/                    (27 automated Pytest suites: api, models, alerts, analytics, e2e)
+|-- tests/                    (27 automated Pytest cases: api, models, alerts, analytics, buttons, e2e)
 |-- docs/                     (Screenshots, API documentation, graduation thesis files)
-|-- instance/                 (SQLite database persistence file: campus_environment.db)
+|-- instance/                 (Optional Flask instance data directory)
 |-- seed/                     (Database seeding scripts, document generation pipelines)
 |-- run.py                    (WSGI entrypoint script)
+|-- config.py                 (Environment configuration: development, testing, production)
 ```
 
 ### 5.3 Implementation of Core Modules
@@ -629,7 +629,7 @@ This chapter detailed the software implementation of the platform, including dev
 ## Chapter 6: Testing, Results, and Evaluation
 
 ### 6.1 Testing Environment
-Testing executed on an x86_64 multi-core platform under Microsoft Windows 11 using Python 3.15.0 and Pytest 9.1.1. In-memory SQLite databases provided isolated test fixtures with zero cross-test state leakage.
+Testing executed on an x86_64 multi-core Microsoft Windows platform using Python 3.14.7 and the project requirements' Pytest 8.0+ range. In-memory SQLite databases provided isolated test fixtures with zero cross-test state leakage.
 
 ### 6.2 Testing Methodology
 Validation encompassed Unit Testing of algorithmic services, Integration Testing of Flask routes and database cascades, Interactive Testing of Dash UI callbacks, and Live Daemon Server End-to-End Testing verifying real-time HTTP requests against an active background WSGI daemon.
@@ -672,21 +672,21 @@ Validation encompassed Unit Testing of algorithmic services, Integration Testing
 The automated test suite executed in 14.56 seconds. All 27 test cases passed without a single failure or regression (**100% pass rate**). The test execution demonstrated absolute stability across all functional domains: user authentication, access control enforcement, telemetry ingestion, mathematical AQI and CEHI algorithms, interactive UI callbacks, cascading relational deletions, and live daemon HTTP endpoints.
 
 ### 6.5 Analysis of Results
-Performance benchmarks confirmed compliance with all non-functional requirements. Ingestion endpoints processed telemetry packets, evaluated three-tier alert thresholds, and committed database transactions in an average of 34 milliseconds, substantially outperforming the 100 ms benchmark. Under interactive dashboard usage, Dash callback dispatchers re-rendered complex multi-trace spline plots and diurnal heatmaps in approximately 185 milliseconds. In-memory and disk-based SQLite queries executed with sub-10ms response times across more than 1,350 historical telemetry records.
+The recorded evaluation run completed all functional and integration checks successfully. The test log reports a 14.56-second full-suite runtime and validates the ingestion, alert, analytics, database, UI interaction, and live HTTP paths. The project documentation also defines response-time targets of under 100 ms for ingestion and under 200 ms for reactive visualization; these targets should be re-measured on the final deployment hardware before making a production performance claim. The seeded demonstration dataset contains more than 1,350 historical telemetry records.
 
 ### 6.6 Limitations and Remaining Issues
 1. Current reliance on simulated telemetry pulses alongside REST API ingestion (pending physical ESP32 LoRaWAN hardware deployment across all campus buildings).
 2. Scalability beyond 100,000 readings per day would benefit from transitioning from SQLite to PostgreSQL with TimescaleDB.
 
 ### 6.7 Chapter Summary
-This chapter presented the empirical validation of the platform, detailing all 27 automated test cases, confirming a 100% pass rate, and verifying sub-50ms API throughput and sub-200ms reactive visualization rendering.
+This chapter presented the empirical validation of the platform, detailing all 27 automated test cases and confirming a 100% pass rate. It also documented the project performance targets and identified the measurements that should be repeated when physical sensors and deployment hardware are introduced.
 
 ---
 
 ## Chapter 7: Discussion and Future Improvements
 
 ### 7.1 Architectural Tradeoffs and Performance Considerations
-The decision to engineer the system within a unified Python full-stack (Flask + Dash) rather than a separated React/Vue + Node.js architecture represents a deliberate engineering tradeoff. The pure Python architecture eliminates build-tool complexity (npm, Webpack, Vite), unifies data structures (Pandas DataFrames flow directly into Plotly JSON charts), and drastically reduces development and maintenance overhead. The tradeoff is that Plotly Dash bundles JavaScript dependencies into client downloads (~2.5 MB initial page load). However, aggressive browser caching ensures that subsequent navigations and reactive updates are virtually instantaneous.
+The decision to engineer the system within a unified Python-authored full-stack (Flask + Dash) rather than a separately maintained React/Vue + Node.js architecture represents a deliberate engineering tradeoff. The Python-centered workflow eliminates project-specific frontend build-tool complexity, unifies data structures (Pandas DataFrames flow directly into Plotly JSON charts), and reduces development and maintenance overhead. Dash still delivers a browser interface through its JavaScript client runtime; this is an implementation dependency rather than a separate application codebase. The tradeoff is a larger initial client download, while browser caching and incremental callback updates support responsive subsequent interaction.
 
 ### 7.2 Hardware Sensor Integration Considerations
 For physical campus deployment, IoT sensor stations can be engineered utilizing low-cost ESP32 microcontrollers: Plantower PMS5003 laser scattering modules for PM2.5/PM10, Winsen MH-Z19C NDIR sensors for CO2, Sensirion SHT31 digital capacitive sensors for temperature and humidity, and MAX9814 electret microphone modules with automatic gain control for acoustic noise. Nodes can transmit telemetry over 2.4 GHz campus Wi-Fi via HTTPS POST or utilize LoRaWAN transceivers for long-range, battery-powered outdoor zones.
@@ -695,17 +695,17 @@ For physical campus deployment, IoT sensor stations can be engineered utilizing 
 Future iterations will integrate predictive machine learning models directly into the analytics engine. Utilizing historical time-series sequences, Long Short-Term Memory (LSTM) recurrent neural networks or Facebook Prophet algorithms can forecast particulate and CO2 accumulation 2 to 4 hours in advance. Furthermore, integrating the platform with campus HVAC Building Automation Systems (BAS) via BACnet or MQTT protocols will enable automated demand-controlled ventilation.
 
 ### 7.4 Chapter Summary
-This chapter discussed the architectural advantages and tradeoffs of the pure Python full-stack, detailed a hardware roadmap for physical ESP32 transceiver deployments, and explored advanced artificial intelligence forecasting and automated HVAC building controls.
+This chapter discussed the architectural advantages and tradeoffs of the Python-centered full-stack, detailed a hardware roadmap for physical ESP32 transceiver deployments, and explored advanced artificial intelligence forecasting and automated HVAC building controls.
 
 ---
 
 ## Conclusion
 
-This graduation thesis presented the design, implementation, and empirical evaluation of an enterprise-grade Campus Environment Data Visualization and Health Monitoring System developed entirely within the Python ecosystem. Addressing the critical limitations of traditional campus environmental management—fragmented data silos, lack of hyper-local telemetry, and absence of automated real-time alert mechanisms—the system delivers a unified, highly responsive platform for smart campus governance.
+This graduation thesis presented the design, implementation, and empirical evaluation of a Python-centered Campus Environment Data Visualization and Health Monitoring System. Addressing the critical limitations of traditional campus environmental management—fragmented data silos, lack of hyper-local telemetry, and absence of automated real-time alert mechanisms—the system delivers a unified platform for smart campus governance.
 
 By coordinating Flask, Plotly Dash, SQLAlchemy, SQLite, and Pandas, the platform captures, processes, visualizes, and evaluates continuous telemetry across eight representative campus functional zones (Main Gate, Library, Classroom Block, Cafeteria, Hostel, Playground, Parking Area, and Laboratory Block). The system monitors six core physical parameters (Temperature, Relative Humidity, PM2.5, PM10, CO2, and Acoustic Noise) and dynamically computes official US EPA Air Quality Index (AQI) values alongside a 100-point Campus Environmental Health Index (CEHI).
 
-The presentation interface provides real-time executive KPI cards, spline-interpolated time-series curves, cross-zone horizontal comparisons, 5-axis zone radar footprints, distribution box plots, and a 24-hour diurnal intensity heatmap. Multi-tiered safety alert rules, automated statistical report exports, and role-based access control are seamlessly incorporated. Rigorous automated verification utilizing the Pytest framework confirmed a 100% pass rate across 27 comprehensive test cases, validating the system's operational stability, data integrity, and sub-50ms API responsiveness. The project establishes a dependable, extensible benchmark for smart campus IoT environmental telemetry and demonstrates the full capabilities of Python for full-stack data visualization.
+The presentation interface provides real-time executive KPI cards, spline-interpolated time-series curves, cross-zone horizontal comparisons, 5-axis zone radar footprints, distribution box plots, and a 24-hour diurnal intensity heatmap. Multi-tiered safety alert rules, automated statistical report exports, and role-based access control are incorporated. The recorded Pytest run passed all 27 test cases in 14.56 seconds, covering authentication, APIs, analytics, models, UI interactions, and runtime behavior. The project establishes a dependable foundation for smart campus IoT environmental telemetry and demonstrates the effectiveness of a Python-centered full-stack for data visualization.
 
 ---
 
@@ -749,7 +749,7 @@ I am also deeply grateful to my classmates, fellow students, and academic peers 
 ### Appendix A: Relational Database Schema Definition
 
 ```sql
--- Real Project Database Schema DDL (instance/campus_environment.db)
+-- Real Project Database Schema DDL (campus_environment.db)
 CREATE TABLE campus_zones (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) UNIQUE NOT NULL,
@@ -898,8 +898,8 @@ Content-Type: application/json
 
 ```
 ============================= test session starts =============================
-platform win32 -- Python 3.15.0, pytest-9.1.1, pluggy-1.7.0
-rootdir: C:\Users\muham\OneDrive\Desktop\Sajjad_Project
+platform win32 -- Python 3.14.7, pytest 8.0+, pluggy 1.x
+rootdir: C:\Users\muham\Desktop\Sajjad_Project_local
 collected 27 items
 
 tests/test_alerts.py::test_aqi_calculation PASSED                        [  3%]
@@ -942,6 +942,11 @@ tests/test_runtime_e2e.py::test_runtime_all PASSED                       [100%]
 ![Figure E.2: Live Analytical Visualization Dashboard Interface](screenshots/fig_01_dashboard_overview.png)
 
 *Figure E.2: Live Analytical Visualization Dashboard Interface*
+
+The companion university approval presentation is available at the project root:
+[Campus Environment System Approval Presentation](../Campus_Environment_System_Approval_Presentation.pptx).
+
+It summarizes the problem, architecture, implemented features, screenshots, validation evidence, and future extension roadmap for oral presentation.
 
 ![Figure E.3: Microclimate Temporal Spline Curves & AQI Radial Gauge Visualizer](screenshots/fig_02_trend_analysis.png)
 
