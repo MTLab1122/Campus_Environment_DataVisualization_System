@@ -125,9 +125,9 @@
 
                 <!-- Action CTA Buttons -->
                 <div class="flex flex-wrap justify-center gap-4 mb-16">
-                    <a id="hero-vercel-btn" href="#" target="_blank" class="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-base shadow-xl shadow-emerald-500/25 transition flex items-center space-x-2">
+                    <a id="hero-vercel-btn" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMTLab1122%2FCampus_Environment_DataVisualization_System" target="_blank" rel="noopener" class="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-base shadow-xl shadow-emerald-500/25 transition flex items-center space-x-2">
                         <i class="bi bi-box-arrow-up-right"></i>
-                        <span>Launch Live Dashboard (Vercel)</span>
+                        <span>Deploy Live Dashboard on Vercel</span>
                     </a>
                     <a href="https://github.com/MTLab1122/Campus_Environment_DataVisualization_System" target="_blank" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-base border border-slate-700 transition flex items-center space-x-2">
                         <i class="bi bi-github"></i>
@@ -490,7 +490,7 @@
             <p>&copy; 2026 Campus Environment Data Visualization System. All rights reserved.</p>
             <div class="flex items-center space-x-6">
                 <a href="https://github.com/MTLab1122/Campus_Environment_DataVisualization_System" target="_blank" class="hover:text-slate-300 transition">GitHub Repo</a>
-                <a href="https://vercel.com" target="_blank" class="hover:text-slate-300 transition">Hosted on Vercel</a>
+                <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMTLab1122%2FCampus_Environment_DataVisualization_System" target="_blank" rel="noopener" class="hover:text-slate-300 transition">Deploy on Vercel</a>
                 <a href="https://dash.plotly.com" target="_blank" class="hover:text-slate-300 transition">Plotly Dash</a>
             </div>
         </div>
@@ -498,13 +498,9 @@
 
     <!-- Interactive Simulation Script -->
     <script>
-        // Set Vercel deployment URL dynamically or default to current host / vercel
-        const vercelAppUrl = window.location.hostname.includes('vercel.app') 
-            ? window.location.origin 
-            : 'https://campus-environment-datavisualization-system.vercel.app';
-        
-        document.getElementById('vercel-launch-btn').href = vercelAppUrl;
-        document.getElementById('hero-vercel-btn').href = vercelAppUrl;
+        // The dashboard is deployed separately from this static GitHub Pages portal.
+        const vercelDeployUrl = 'https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMTLab1122%2FCampus_Environment_DataVisualization_System';
+        document.getElementById('vercel-launch-btn').href = vercelDeployUrl;
 
         // Initialize Live Chart Simulation
         const ctx = document.getElementById('liveTelemetryChart').getContext('2d');
